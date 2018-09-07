@@ -15,7 +15,7 @@ def sigMod(x):
     return longfloat(1.0/(1+exp(-x)))
 
 
-def classify(dataMat,labelMat):
+def gradeAscent(dataMat,labelMat):
 
     dataMat=mat(dataMat)
     labelMat=mat(labelMat).transpose()
@@ -25,10 +25,34 @@ def classify(dataMat,labelMat):
     alpha=0.001
     for i in range(maxCycle):
         H=sigMod(dataMat*weights)
-        error=H-labelMat
-        weights=weights-alpha*dataMat.transpose()*error
+        error=labelMat-H
+        weights=weights+alpha*dataMat.transpose()*error
     return array(weights)
 
+def randomGradeAscentII(dataMat,labelMat):
+    m,n=shape(dataMat)
+    weights=ones(n)
+    maxCycle=500
+    for i in range(maxCycle):
+        for j in range(m):
+            alpha=4.0/(i+j+1.0)+0.01
+            nextIndex=int(random.uniform(0,len(dataMat)))
+            s=sum(dataMat[nextIndex]*weights)
+            H=sigMod(sum(dataMat[nextIndex]*weights))
+            error=labelMat[nextIndex]-H
+            weights=weights+alpha*error*dataMat[nextIndex]
+    return weights
+
+
+def randomGradeAscentI(dataMat,labelMat):
+    m,n=shape(dataMat)
+    alpha=0.01
+    weights=ones(n)
+    for i in range(m):
+        H=sigMod(sum(dataMat[i]*weights))
+        error=labelMat[i]-H
+        weights=weights+alpha*error*dataMat[i]
+    return weights
 
 def plotBestFit(weights):
     dataMat,labelsMat=loadData()
@@ -61,9 +85,14 @@ def plotBestFit(weights):
 
 if __name__=='__main__':
     dataSet,labels=loadData()
-    weights=classify(dataSet,labels)
+    weights=gradeAscent(dataSet,labels)
     print(weights)
     plotBestFit(weights)
+    weights1=randomGradeAscentII(array(dataSet),labels)
+    plotBestFit(weights1)
+    weights2=randomGradeAscentI(array(dataSet),labels)
+    plotBestFit(weights2)
+
 
 
 
